@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -10,33 +9,26 @@ namespace MyDailyKata
     {
         private IProvideTime timeProvider;
         private WebTime _testee;
+        private DateTime _today;
 
         public WebTimeTests()
         {
+            this._today = 5.January(2017);
             this.timeProvider = Mock.Of<IProvideTime>();
             this._testee = new WebTime(this.timeProvider);
         }
 
-
         [Fact]
         public void NormalWorkingDay_CheckInAndOut_ExpectActualAmountOfTime()
         {
-            // Act
-            this.SetTime(8.Hours());
-            this._testee.ClockIn();
-            this.SetTime(12.Hours());
-            this._testee.ClockOut();
-            var returnedTime = this._testee.GetWorkingHours();
+            this.When(_ => _.ClockIn(), 8.Hours());
+            this.When(_ => _.ClockOut(), 12.Hours());
 
-            // Assert
-            returnedTime.Should().Be(4.Hours());
+            var workingHours = this._testee.GetWorkingHours();
+
+            workingHours.Should().Be(4.Hours());
         }
-
-        private void SetTime(TimeSpan time, int x = 5)
-        {
-            Mock.Get(this.timeProvider).Setup(t => t.Now).Returns(x.January(2017).At(time));
-        }
-
+        
         [Fact]
         public void NeverClockInAndNeverClockOut_ExpectZeroWorkingHours()
         {
@@ -50,9 +42,8 @@ namespace MyDailyKata
         [Fact]
         public void WhenClockIn_ButNotClockOut_ThenExpectElapsedTimeTillNow()
         {
-            this.SetTime(9.Hours());
-            this._testee.ClockIn();
-            this.SetTime(12.Hours());
+            this.When(_ => _.ClockIn(), 9.Hours());
+            this.When(_ => {}, 12.Hours());
 
             var workingHours = this._testee.GetWorkingHours();
 
@@ -62,13 +53,28 @@ namespace MyDailyKata
         [Fact]
         public void WhenClockInBefore12am_AndClockOutAfter12am_ElapsedTimeExpected()
         {
-            this.SetTime(23.Hours(),5);
-            this._testee.ClockIn();
-            this.SetTime(1.Hours(), 6);
+            this.When(_ => _.ClockIn(), 23.Hours());
+            this.When(_ => _.ClockOut(), 1.Hours().Tomorrow());
 
             var workingHours = this._testee.GetWorkingHours();
 
             workingHours.Should().Be(2.Hours());
+        }
+
+        private void When(Action<WebTime> action, TimeSpan time)
+        {
+            When(action, _today.Add(time));
+        }
+
+        private void When(Action<WebTime> action, DateTime datetime)
+        {
+            SetTime(datetime);
+            action(this._testee);
+        }
+
+        private void SetTime(DateTime datetime)
+        {
+            Mock.Get(this.timeProvider).Setup(t => t.Now).Returns(datetime);
         }
     }
 }

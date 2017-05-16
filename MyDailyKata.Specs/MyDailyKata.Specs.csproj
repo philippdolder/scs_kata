@@ -84,7 +84,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MyTimeProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TimeManagementSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

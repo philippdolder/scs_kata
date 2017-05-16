@@ -44,7 +44,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IProvideTime.cs" />
+    <Compile Include="ITimeTracker.cs" />
+    <Compile Include="IWorkingTimeCalculator.cs" />
+    <Compile Include="IWorkingTimeStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TimeTracker.cs" />
+    <Compile Include="WorkingTimeCalculator.cs" />
+    <Compile Include="WorkingTimeStore.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
